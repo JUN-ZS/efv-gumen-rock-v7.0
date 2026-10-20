@@ -43,12 +43,20 @@ def select_mode_prompt(item: dict, mode: str) -> str:
     return item.get("prompt_dual", "")
 
 
+def set_section(s: dict) -> str:
+    return s.get("section_name") or s.get("section") or ""
+
+
+def kf_lyric(k: dict) -> str:
+    return k.get("verbatim_lyric") or k.get("lyric_line") or ""
+
+
 def cmd_list(data: dict) -> None:
     print("=" * 105)
     print(f"🎸 {data.get('project', 'EFV∞ V7.0')}｜全曲 16 SET 總覽 (共 304 組 Prompt)")
     print("=" * 105)
     for s in data["sets"]:
-        print(f"• [{s['set_id']}] ({s['section']} | {s['bpm']}) {s['title']}")
+        print(f"• [{s['set_id']}] ({set_section(s)} | {s['bpm']}) {s['title']}")
         print(f"  ├─ [STYLE] 標籤: {s['style_tag']}")
         lyrics_preview = " / ".join([line.strip() for line in s["verbatim_lyrics"] if line.strip()])
         print(f"  └─ 定稿原詞: {lyrics_preview}")
@@ -62,7 +70,7 @@ def cmd_set(data: dict, set_num: int, mode: str) -> None:
         sys.exit(f"❌ 找不到 {set_id}（請輸入 1 ~ 16）")
 
     print("=" * 105)
-    print(f"🎬 [{set_id}] {set_meta['title']} ({set_meta['section']} | {set_meta['bpm']})  [Mode: {mode}]")
+    print(f"🎬 [{set_id}] {set_meta['title']} ({set_section(set_meta)} | {set_meta['bpm']})  [Mode: {mode}]")
     print(f"🎵 [STYLE]: {set_meta['style_tag']}")
     print("📜 本段完整原詞:")
     for line in set_meta["verbatim_lyrics"]:
@@ -77,7 +85,7 @@ def cmd_set(data: dict, set_num: int, mode: str) -> None:
     kfs = [k for k in data["keyframes_1080p"] if k["set_id"] == set_id]
     print(f"\n[2] 1080P 關鍵幀 ({len(kfs)} 張):")
     for k in kfs:
-        print(f"  • [{k['id']}] ({k.get('title', '')} | {k.get('phase', '')} | 原詞: {k.get('lyric_line', '')})")
+        print(f"  • [{k['id']}] ({k.get('title', '')} | {k.get('phase', '')} | 原詞: {kf_lyric(k)})")
         print(f"    {select_mode_prompt(k, mode)}")
 
     mps = [m for m in data["intra_set_morphs"] if m["set_id"] == set_id]
